@@ -27,7 +27,6 @@ public class SubmissionController {
             Authentication authentication) {
 
         try {
-            // Server-side validations
             if (fullName == null || fullName.isBlank()) {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Full name is required"));
             }

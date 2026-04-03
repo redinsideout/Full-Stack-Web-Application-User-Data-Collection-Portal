@@ -1,0 +1,13 @@
+com\iitd\app\security\CustomUserDetailsService.class
+com\iitd\app\repository\SubmissionRepository.class
+com\iitd\app\service\SubmissionService.class
+com\iitd\app\controller\AuthController.class
+com\iitd\app\security\SecurityConfig.class
+com\iitd\app\entity\Submission.class
+com\iitd\app\controller\SubmissionController.class
+com\iitd\app\dto\SubmissionRequest.class
+com\iitd\app\UserDataPortalApplication.class
+com\iitd\app\dto\LoginRequest.class
+com\iitd\app\config\DataSeeder.class
+com\iitd\app\entity\User.class
+com\iitd\app\repository\UserRepository.class
