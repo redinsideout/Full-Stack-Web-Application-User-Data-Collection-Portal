@@ -87,8 +87,8 @@ http://localhost:8080
 ## 👤 Demo Credentials
 
 ```
-Email: demo@example.com
-Password: Demo@1234
+Email: info@poshatva.com
+Password: Poshatva@1234
 ```
 
 ---
@@ -151,3 +151,4 @@ Password: Demo@1234
 This project demonstrates full-stack development including authentication, file handling, database integration, and secure data access.
 
 ---
+
