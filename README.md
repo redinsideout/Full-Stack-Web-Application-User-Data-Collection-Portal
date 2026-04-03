@@ -10,18 +10,18 @@ The application ensures that only authenticated users can access the system and 
 
 ## 🛠️ Tech Stack
 
+### Frontend
+
+- HTML
+- CSS
+- JavaScript (Fetch API)
+
 ### Backend
 
 - Java (Spring Boot)
 - Spring Security (Authentication)
 - MySQL (Database)
 - Apache PDFBox (PDF generation)
-
-### Frontend
-
-- HTML
-- CSS
-- JavaScript (Fetch API)
 
 ---
 
