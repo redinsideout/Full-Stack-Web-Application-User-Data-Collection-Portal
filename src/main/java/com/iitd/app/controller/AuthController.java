@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,44 +21,43 @@ public class AuthController {
     private AuthenticationManager authenticationManager;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest,
-                                    HttpSession session) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                    loginRequest.getEmail(),
-                    loginRequest.getPassword()
-                )
-            );
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getEmail(),
+                            loginRequest.getPassword()));
+
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
             return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "Login successful",
-                "email", authentication.getName()
-            ));
+                    "success", true,
+                    "message", "Login successful",
+                    "email", authentication.getName()));
+
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(401).body(Map.of(
-                "success", false,
-                "message", "Invalid email or password"
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of(
-                "success", false,
-                "message", "An error occurred. Please try again."
-            ));
+                    "success", false,
+                    "message", "Invalid email or password"));
+
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "success", false,
+                    "message", "Authentication failed"));
         }
     }
 
     @GetMapping("/status")
     public ResponseEntity<?> status(Authentication authentication) {
-        if (authentication != null && authentication.isAuthenticated()) {
+        if (authentication != null
+                && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)) {
+
             return ResponseEntity.ok(Map.of(
-                "authenticated", true,
-                "email", authentication.getName()
-            ));
+                    "authenticated", true,
+                    "email", authentication.getName()));
         }
+
         return ResponseEntity.ok(Map.of("authenticated", false));
     }
 }
