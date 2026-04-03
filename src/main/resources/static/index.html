@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Login — IITD Data Collection Portal" />
+  <title>User Data Collection Portal</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <div class="page-wrapper">
+    <div class="auth-card">
+
+      <!-- Brand -->
+      <div class="brand">
+        <span class="brand-icon">📋</span>
+        <div>
+          <div class="brand-name">IITD - Assignment</div>
+          <!-- <div class="brand-sub">Full-Stack Data Collection App</div> -->
+        </div>
+      </div>
+
+      <!-- Heading -->
+      <div class="page-heading" style="margin-bottom:1rem;">
+        <h1>Sign In</h1>
+        <p>Enter your credentials to continue</p>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Form -->
+      <form id="loginForm" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="emailInput">Email Address</label>
+          <div class="input-wrapper">
+            <input
+              type="email"
+              id="emailInput"
+              class="form-input"
+              placeholder="demo@example.com"
+              autocomplete="email"
+              required
+            />
+          </div>
+          <div id="emailError" class="field-error">Please enter a valid email address.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="passwordInput">Password</label>
+          <div class="input-wrapper">
+            <input
+              type="password"
+              id="passwordInput"
+              class="form-input"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              required
+            />
+          </div>
+          <div id="passwordError" class="field-error">Password is required.</div>
+        </div>
+
+        <!-- Remember me -->
+        <div class="remember-row">
+          <div id="rememberBox" class="custom-checkbox" role="checkbox" aria-checked="false" tabindex="0"></div>
+          <label class="remember-label">Remember me</label>
+        </div>
+
+        <button type="submit" id="loginBtn" class="btn btn-primary">
+          <span class="btn-spinner"></span>
+          <span class="btn-text">Sign In</span>
+        </button>
+
+        <div id="loginAlert" class="alert alert-error"></div>
+      </form>
+
+      <!-- Demo hint -->
+      <div class="alert alert-info visible" style="margin-top:1rem;">
+        <strong>Demo:</strong> info@poshatva.com / Poshatva@1234
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    // Redirect if already logged in
+    (async function () {
+      try {
+        const res  = await fetch('/api/auth/status', { credentials: 'include' });
+        const data = await res.json();
+        if (data.authenticated) window.location.href = '/form.html';
+      } catch (_) {}
+    })();
+
+    // Remember checkbox
+    const rememberBox = document.getElementById('rememberBox');
+    rememberBox.addEventListener('click', () => {
+      const checked = rememberBox.classList.toggle('checked');
+      rememberBox.setAttribute('aria-checked', checked);
+    });
+    rememberBox.addEventListener('keydown', e => {
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); rememberBox.click(); }
+    });
+
+    // Submit
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const emailInput  = document.getElementById('emailInput');
+      const pwdInput    = document.getElementById('passwordInput');
+      const emailError  = document.getElementById('emailError');
+      const pwdError    = document.getElementById('passwordError');
+      const loginAlert  = document.getElementById('loginAlert');
+      const loginBtn    = document.getElementById('loginBtn');
+
+      emailError.classList.remove('visible');
+      pwdError.classList.remove('visible');
+      loginAlert.classList.remove('visible');
+
+      const email    = emailInput.value.trim();
+      const password = pwdInput.value;
+      let valid = true;
+
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        emailError.classList.add('visible'); valid = false;
+      }
+      if (!password) {
+        pwdError.classList.add('visible'); valid = false;
+      }
+      if (!valid) return;
+
+      loginBtn.classList.add('btn-loading');
+      loginBtn.disabled = true;
+
+      try {
+        const res  = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          sessionStorage.setItem('userEmail', data.email);
+          window.location.href = '/form.html';
+        } else {
+          loginAlert.textContent = data.message || 'Invalid email or password.';
+          loginAlert.classList.add('visible');
+        }
+      } catch (_) {
+        loginAlert.textContent = 'Network error. Please try again.';
+        loginAlert.classList.add('visible');
+      } finally {
+        loginBtn.classList.remove('btn-loading');
+        loginBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Submit Details — IITD Data Portal" />
+  <title>Submit Details</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="/form.html" class="nav-brand">
+      <span class="nav-brand-icon">📋</span>
+      IITD - Assignment
+    </a>
+    <div class="nav-actions">
+      <div class="nav-user-badge">
+        <span class="nav-dot"></span>
+        <span id="navUserEmail">User</span>
+      </div>
+      <button id="logoutBtn" class="btn btn-outline" style="padding:0.4rem 0.85rem;font-size:0.8rem;">
+        Logout
+      </button>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <div class="content-wrapper">
+
+    <!-- Form Card -->
+    <div class="section-card">
+      <div class="section-header">
+        <span class="section-icon-wrap">📝</span>
+        <div>
+          <div class="section-title">Personal Information</div>
+          <div class="section-subtitle">Fill in all fields accurately. All are required.</div>
+        </div>
+      </div>
+
+      <div class="info-banner">
+        ℹ️ &nbsp;Your data will be securely stored. Please upload a PDF document (max 5 MB).
+      </div>
+
+      <form id="dataForm" novalidate>
+
+        <div class="form-group">
+          <label class="form-label" for="fullNameInput">Full Name</label>
+          <input type="text" id="fullNameInput" class="form-input" placeholder="Enter your full name" required />
+          <div id="fullNameError" class="field-error">Full name is required.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="emailDataInput">Email Address</label>
+          <input type="email" id="emailDataInput" class="form-input" placeholder="anything@company.com" required />
+          <div id="emailDataError" class="field-error">Enter a valid email address.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="mobileInput">Mobile Number</label>
+          <input type="tel" id="mobileInput" class="form-input" placeholder="Enter a valid 10 digit number" required />
+          <div id="mobileError" class="field-error">Invalid mobile number.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="pdfFileInput">PDF Document</label>
+          <label class="file-input-wrapper" for="pdfFileInput">
+            <div class="file-input-display" id="fileDisplay">
+              <span class="file-input-icon">📄</span>
+              <div class="file-input-text"><strong>Click to upload</strong> a PDF file</div>
+              <div class="file-input-text">PDF only · Max 5 MB</div>
+              <div class="file-input-name" id="fileNameDisplay"></div>
+            </div>
+          </label>
+          <input type="file" id="pdfFileInput" accept=".pdf,application/pdf" required />
+          <div id="pdfError" class="field-error">A valid PDF file (max 5 MB) is required.</div>
+        </div>
+
+        <hr class="divider" />
+
+        <button type="submit" id="submitBtn" class="btn btn-primary">
+          <span class="btn-spinner"></span>
+          <span class="btn-text">Submit Details</span>
+        </button>
+
+        <div id="formAlert" class="alert"></div>
+      </form>
+    </div>
+
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    // Auth guard
+    (async function () {
+      try {
+        const res  = await fetch('/api/auth/status', { credentials: 'include' });
+        const data = await res.json();
+        if (!data.authenticated) { window.location.href = '/index.html'; return; }
+        document.getElementById('navUserEmail').textContent = data.email || '';
+      } catch (_) { window.location.href = '/index.html'; }
+    })();
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+      sessionStorage.clear();
+      window.location.href = '/index.html';
+    });
+
+    // File input UI
+    document.getElementById('pdfFileInput').addEventListener('change', function () {
+      const file    = this.files[0];
+      const display = document.getElementById('fileDisplay');
+      const nameEl  = document.getElementById('fileNameDisplay');
+      if (file) {
+        display.classList.add('has-file');
+        nameEl.textContent = '✔ ' + file.name;
+      } else {
+        display.classList.remove('has-file');
+        nameEl.textContent = '';
+      }
+    });
+
+    // Form submit
+    document.getElementById('dataForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const ids = ['fullNameError','emailDataError','mobileError','pdfError'];
+      ids.forEach(id => document.getElementById(id).classList.remove('visible'));
+      const alert = document.getElementById('formAlert');
+      alert.className = 'alert';
+
+      const fullName = document.getElementById('fullNameInput').value.trim();
+      const email    = document.getElementById('emailDataInput').value.trim();
+      const mobile   = document.getElementById('mobileInput').value.trim();
+      const pdfFile  = document.getElementById('pdfFileInput').files[0];
+      let valid = true;
+
+      if (!fullName) { document.getElementById('fullNameError').classList.add('visible'); valid = false; }
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { document.getElementById('emailDataError').classList.add('visible'); valid = false; }
+      if (!mobile || !/^[0-9]{10}$/.test(mobile)) { document.getElementById('mobileError').classList.add('visible'); valid = false; }
+      if (!pdfFile || pdfFile.type !== 'application/pdf' || pdfFile.size > 5 * 1024 * 1024) {
+        document.getElementById('pdfError').classList.add('visible'); valid = false;
+      }
+      if (!valid) return;
+
+      const btn = document.getElementById('submitBtn');
+      btn.classList.add('btn-loading'); btn.disabled = true;
+
+      const formData = new FormData();
+      formData.append('fullName', fullName);
+      formData.append('email', email);
+      formData.append('mobileNumber', mobile);
+      formData.append('pdfFile', pdfFile);
+
+      try {
+        const res  = await fetch('/api/submissions', { method: 'POST', credentials: 'include', body: formData });
+        const data = await res.json();
+        if (data.success) {
+          sessionStorage.setItem('submissionData', JSON.stringify({ fullName, email, mobile }));
+          window.location.href = '/success.html';
+        } else {
+          alert.textContent = data.message || 'Submission failed.';
+          alert.classList.add('alert-error', 'visible');
+        }
+      } catch (_) {
+        alert.textContent = 'Network error. Please try again.';
+        alert.classList.add('alert-error', 'visible');
+      } finally {
+        btn.classList.remove('btn-loading'); btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
