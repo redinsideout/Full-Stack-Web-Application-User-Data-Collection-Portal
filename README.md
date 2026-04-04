@@ -1,10 +1,176 @@
+# 📋 Full Stack Web Application — User Data Collection Portal
+
+---
+
+## 🚀 Project Overview
+
+This is a full-stack web application where users can log in and submit their personal details along with a PDF file. The data is stored in a database, and users can download their submitted details as a generated PDF.
+
+Only authenticated users can access the system, and each user can only view/download their own data.
+
+---
+
+## 🛠️ Prerequisites and Dependencies
+
+Make sure the following are installed:
+
+* Java JDK 17 or above
+* Maven
+* MySQL Server
+* Web Browser (Chrome recommended)
+
+Dependencies used in the project:
+
+* Spring Boot
+* Spring Security
+* Spring Data JPA
+* MySQL Driver
+* Apache PDFBox
+
+---
+
+## ⚙️ Steps to Set Up and Run the Project Locally
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/redinsideout/Full-Stack-Web-Application-User-Data-Collection-Portal.git
+cd Full-Stack-Web-Application-User-Data-Collection-Portal
+```
+
+---
+
+### 2. Configure Database
+
+Create a MySQL database:
+
+```sql
+CREATE DATABASE user_portal;
+```
+
+Update `application.properties`:
+
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/user_portal
+spring.datasource.username=root
+spring.datasource.password=your_password
+
+spring.jpa.hibernate.ddl-auto=update
+```
+
+---
+
+### 3. Run the Backend
+
+```bash
+mvn spring-boot:run
+```
+
+---
+
+### 4. Open the Application
+
+Open browser and go to:
+
+```
+http://localhost:8080
+```
+
+---
+
+## 🗄️ Database Setup Instructions and Seed Command
+
+You can create tables using the provided `schema.sql` file.
+
+Run this in MySQL:
+
+```sql
+SOURCE schema.sql;
+```
+
+---
+
+## 👤 Demo Login Credentials
+
+Use the following credentials to log in:
+
+```
+Email: demo@example.com  
+Password: Demo@1234
+```
+
+---
+
+## 📄 SQL Schema
+
+Example schema for required tables:
+
+```sql
+CREATE TABLE users (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE submissions (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    mobile_number VARCHAR(15) NOT NULL,
+    pdf_path VARCHAR(255) NOT NULL,
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+```
+
+---
+
+## 🌱 Seed File / SQL Insert for Demo User
+
+```sql
+INSERT INTO users (email, password)
+VALUES ('demo@example.com', '$2a$10$examplehashedpassword');
+```
+
+👉 Note: Password is stored in hashed format using BCrypt.
+
+---
+
+## ✨ Features
+
+* 🔐 User Authentication (Login)
+* 📝 Form Submission with Validation
+* 📁 PDF Upload (Max 5MB)
+* 🗄️ Data Stored in MySQL Database
+* 📄 Dynamic PDF Generation & Download
+* 🔒 Secure Access (User-specific data only)
+
+---
+
+## 📌 Notes
+
+* Uploaded files are stored in `/uploads/` directory
+* Only file path is stored in database
+* Only `.pdf` files are allowed
+* Maximum file size: 5MB
+
+---
+
+## 🎯 Conclusion
+
+This project demonstrates full-stack development including authentication, file handling, database integration, and secure user data management using Spring Boot.
+
+---
+
 # 📋 Full Stack User Data Collection Portal
 
 ## 🚀 Project Overview
 
-This is a full-stack web application where users can log in, submit their personal details along with a PDF file, and download their submitted data as a generated PDF.
+This is a full-stack web application where users can log in and submit their personal details along with a PDF file. The data is stored in a database, and users can download their submitted details as a generated PDF.
 
-The application ensures that only authenticated users can access the system and each user can only view/download their own data.
+Only authenticated users can access the system, and each user can only view/download their own data.
 
 ---
 
