@@ -134,7 +134,8 @@ INSERT IGNORE INTO users (email, password)
 VALUES (
     'info@poshatva.com',
     '$2a$10$MAacBoV05zazBDoGfjMn.OUBMwRNxOCA7W3Vg2iK6fsCDUu6wbeD2'
-);```
+);
+```
 
 👉 Note: Password is stored in hashed format using BCrypt.
 
